@@ -40,7 +40,7 @@
 
 - 直播时间：2023年10月04日
 - YouTube: <https://youtube.com/live/qUbLqcdjT-c>
-- Bilibili: <>
+- Bilibili: <https://www.bilibili.com/video/BV1ZC4y1L7LL>
 
 主要内容：
 
@@ -69,7 +69,7 @@
 
 - 直播时间：2023年10月05日
 - YouTube: <https://youtube.com/live/YK9qkoUK0PA>
-- Bilibili: <>
+- Bilibili: <https://www.bilibili.com/video/BV1V8411k7mv>
 
 主要内容：
 
