@@ -127,8 +127,8 @@
 【Ep.05】
 
 - 直播时间：2023年10月09日
-- YouTube: <https://youtube.com/live/Sn2RV07IJL0>
-- Bilibili: <>
+- YouTube: <https://youtube.com/live/xY8J9x9Ny6g>
+- Bilibili: <https://www.bilibili.com/video/BV1qw411y7Gx>
 
 主要内容：
 
