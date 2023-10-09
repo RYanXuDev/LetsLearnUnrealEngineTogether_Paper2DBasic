@@ -89,7 +89,7 @@
 
 - 直播时间：2023年10月06日
 - YouTube: <https://youtube.com/live/9Af0NR8xl3w>
-- Bilibili: <>
+- Bilibili: <https://www.bilibili.com/video/BV1YG411m7rD>
 
 主要内容：
 
@@ -101,3 +101,45 @@
 6. 检测滑行时头顶是不是有墙壁
 7. BlueprintImplementableEvent的作用：函数在C++里声明并可调用，但在蓝图里实现
 8. 实现角色的滑行
+
+---
+
+【Ep.04】
+
+- 直播时间：2023年10月07日
+- YouTube: <https://youtube.com/live/Sn2RV07IJL0>
+- Bilibili: <https://www.bilibili.com/video/BV1Y84y117SD>
+
+主要内容：
+
+1. 检测下蹲时的输入状态，解决下蹲时偶尔不会恢复到正常状态的BUG
+2. 解决动画蓝图蜘蛛网的大杀器：跳转节点JumpNode
+3. 跳转到Fall状态
+4. 跳转节点的逻辑(蓝图与C++)
+5. 跳转到蹲下状态
+6. 跳转到跳起状态
+7. 阿严是如何学习的·其一：如何获取有用的信息(ChatGPT与官方社区)
+8. 如何在虚幻引擎里声明委托(Delegate)
+9. 如何使用自定义委托
+
+---
+
+【Ep.05】
+
+- 直播时间：2023年10月09日
+- YouTube: <https://youtube.com/live/Sn2RV07IJL0>
+- Bilibili: <>
+
+主要内容：
+
+1. 使用动画播放器(PaperZD Player)的播放进度(Progress)来判断动画是否播放完毕
+2. 初识动画通知AnimNotify
+3. PaperZD的动画资源(AnimationSource)于AnimInstance的关系
+4. 如何使用动画通知
+5. 如何获取游戏资产(官方商城/免费资源网站)
+6. 使用动画通知来播放脚步声
+7. 初识MetaSound
+8. 动画通知状态(AnimNotifyState)
+9. PaperZD特有的动画通知(PaperZDAnimNotify与PaperZDAnimNotifyState)
+10. 如何创建并使用自定义动画通知(蓝图和C++)
+11. 使用动画通知与跳转节点重构动画状态机
