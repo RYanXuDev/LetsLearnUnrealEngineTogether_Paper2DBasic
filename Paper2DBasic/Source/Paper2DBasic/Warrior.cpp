@@ -1,10 +1,11 @@
 #include "Warrior.h"
 
-#include "PaperFlipbookComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Components/ArrowComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "PaperFlipbookComponent.h"
+#include "PaperZDAnimationComponent.h"
+#include "PaperZDAnimInstance.h"
 
 AWarrior::AWarrior()
 {
@@ -19,20 +20,25 @@ AWarrior::AWarrior()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
-
-	GetArrowComponent()->SetHiddenInGame(false);
 	
 	GetSprite()->SetCastShadow(true);
 	GetSprite()->SetRelativeLocation(DefaultSpriteOffset);
 	GetSprite()->SetRelativeScale3D(FVector(5.0f));
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
+	GetCharacterMovement()->SetCrouchedHalfHeight(50.0f);
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 10000.0f, 0.0f);
-	GetCharacterMovement()->CrouchedHalfHeight = 50.0f;
 	GetCharacterMovement()->GravityScale = 4.0f;
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
 	GetCharacterMovement()->AirControl = 0.9f;
+}
+
+void AWarrior::BeginPlay()
+{
+	Super::BeginPlay();
+
+	CrouchedSpriteOffset = FVector(DefaultSpriteOffset.X, DefaultSpriteOffset.Y, CrouchedSpriteHeight);
 }
 
 void AWarrior::Tick(float DeltaSeconds)
@@ -45,17 +51,10 @@ void AWarrior::Tick(float DeltaSeconds)
 	}
 }
 
-void AWarrior::BeginPlay()
-{
-	Super::BeginPlay();
-
-	CrouchedSpriteOffset = FVector(DefaultSpriteOffset.X, DefaultSpriteOffset.Y, CrouchedSpriteHeight);
-
-	LandedDelegate.AddDynamic(this, &AWarrior::OnCharacterLanded);
-}
-
 void AWarrior::Move(const float InputActionValue)
 {
+	HasMoveInput = true;
+	
 	if (bIsCrouched)
 	{
 		if (InputActionValue < 0.0f)
@@ -71,17 +70,36 @@ void AWarrior::Move(const float InputActionValue)
 	}
 	
 	AddMovementInput(FVector::ForwardVector, InputActionValue);
-	SetMoveInputValue(InputActionValue);
+
+	if (!RunAnimationTriggered)
+	{
+		JumpToAnimationNode(JumpToRunNodeName);
+		RunAnimationTriggered = true;
+	}
+}
+
+void AWarrior::StopMoving()
+{
+	HasMoveInput = false;
+	RunAnimationTriggered = false;
+
+	if (IsGrounded())
+	{
+		JumpToAnimationNode(JumpToIdleNodeName);
+	}
 }
 
 void AWarrior::Crouch(bool bClientSimulation)
 {
+	HasCrouchedInput = true;
 	Super::Crouch(bClientSimulation);
 	GetSprite()->SetRelativeLocation(CrouchedSpriteOffset);
 }
 
 void AWarrior::UnCrouch(bool bClientSimulation)
 {
+	HasCrouchedInput = false;
+	
 	if (IsSliding || IsWallAbove())
 	{
 		return;
@@ -94,6 +112,7 @@ void AWarrior::UnCrouch(bool bClientSimulation)
 void AWarrior::Slide()
 {
 	IsSliding = true;
+	JumpToAnimationNode(JumpToSlideNodeName);
 
 	FTimerHandle SlideTimerHandle;
 	GetWorldTimerManager().SetTimer(SlideTimerHandle, this, &AWarrior::StopSlide, SlideDuration);
@@ -103,9 +122,51 @@ void AWarrior::StopSlide()
 {
 	IsSliding = false;
 
-	if (bIsCrouched) return; // TODO: DEBUG Crouch Input
+	if (HasCrouchedInput)
+	{
+		JumpToAnimationNode(JumpToCrouchingNodeName);
+		
+		return;
+	}
 		
 	UnCrouch();
+}
+
+void AWarrior::OnJumped_Implementation()
+{
+	Super::OnJumped_Implementation();
+	JumpToAnimationNode(JumpToJumpUpNodeName);
+}
+
+void AWarrior::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal,
+	const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta)
+{
+	Super::OnWalkingOffLedge_Implementation(
+		PreviousFloorImpactNormal,
+		PreviousFloorContactNormal,
+		PreviousLocation,
+		TimeDelta);
+	JumpToAnimationNode(JumpToFallNodeName);
+}
+
+void AWarrior::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+{
+	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+	JumpToAnimationNode(JumpToCrouchNodeName);
+}
+
+void AWarrior::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	if (HasMoveInput)
+	{
+		JumpToAnimationNode(JumpToRunNodeName);
+	}
+	else
+	{
+		JumpToAnimationNode(JumpToLandAnimNodeName);
+	}
 }
 
 void AWarrior::OnJumpInput()
@@ -120,17 +181,11 @@ void AWarrior::OnJumpInput()
 	}
 
 	Jump();
-	IsJumping = true;
 }
 
 bool AWarrior::IsGrounded() const
 {
 	return GetCharacterMovement()->IsMovingOnGround();
-}
-
-void AWarrior::OnCharacterLanded(const FHitResult& Hit)
-{
-	IsJumping = false;
 }
 
 bool AWarrior::IsWallAbove() const
@@ -148,4 +203,21 @@ bool AWarrior::IsWallAbove() const
 		Params);
 
 	return HitResult.bBlockingHit && HitResult.GetActor()->ActorHasTag(WallTag);
+}
+
+void AWarrior::JumpToAnimationNode(const FName JumpToNodeName, const FName JumpToStateMachineName) const
+{
+	GetAnimationComponent()->GetAnimInstance()->JumpToNode(JumpToNodeName, JumpToStateMachineName);
+}
+
+void AWarrior::OnReceiveNotifyJumpToIdleOrRun() const
+{
+	if (HasMoveInput)
+	{
+		JumpToAnimationNode(JumpToRunNodeName);
+	}
+	else
+	{
+		JumpToAnimationNode(JumpToIdleNodeName);
+	}
 }
