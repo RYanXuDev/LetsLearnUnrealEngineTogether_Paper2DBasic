@@ -9,7 +9,8 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"PaperZD"
+				"PaperZD",
+				"Engine"
 			]
 		}
 	],

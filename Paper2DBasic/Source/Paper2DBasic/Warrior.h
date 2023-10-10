@@ -22,14 +22,23 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	
+#pragma region Components
+	
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta=(AllowPrivateAccess = "true"))
 	USpringArmComponent* SpringArmComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta=(AllowPrivateAccess = "true"))
 	UCameraComponent* CameraComponent;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Wall Check", meta=(AllowPrivateAccess = "true"))
-	FName WallTag =  FName(TEXT("Wall"));
+#pragma endregion
+
+#pragma region Jump To Animation Nodes
+
+	void JumpToAnimationNode(const FName JumpToNodeName, const FName JumpToStateMachineName = NAME_None) const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	FName JumpToAttackAnimNodeName = FName("JumpToAttack");
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToLandAnimNodeName = FName("JumpToLand");
@@ -55,13 +64,27 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToSlideNodeName = FName("JumpToSlide");
 
+#pragma endregion
+
+#pragma region Boolean Flags
+	
 	bool HasMoveInput;
 	bool HasCrouchedInput;
 	bool RunAnimationTriggered;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Animation Parameters", meta=(AllowPrivateAccess = "true"))
 	bool IsSliding;
+		
+	UFUNCTION(BlueprintPure, Category = "Animation Parameters")
+	FORCEINLINE bool IsFalling() const { return !IsGrounded() && GetVelocity().Z <= 0.0f; }
 
+	UFUNCTION(BlueprintPure, Category = "Animation Parameters")
+	bool IsGrounded() const;
+
+#pragma endregion
+
+#pragma region Properties
+	
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide", meta=(AllowPrivateAccess = "true"))
 	float SlideDuration = 0.5f;
 	
@@ -71,6 +94,13 @@ private:
 	const FVector DefaultSpriteOffset = FVector(25.0f, 0.0f, 18.0f);
 	
 	FVector CrouchedSpriteOffset;
+
+#pragma endregion
+
+#pragma region Movement Functions
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void Attack();
 	
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void Move(const float InputActionValue);
@@ -84,7 +114,14 @@ private:
 	void Slide();
 
 	void StopSlide();
+	
+	UFUNCTION(BlueprintCallable, Category=Movement)
+	void OnJumpInput();
 
+#pragma endregion
+
+#pragma region Overrides
+	
 	virtual void OnJumped_Implementation() override;
 
 	virtual void OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal, const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta) override;
@@ -93,16 +130,14 @@ private:
 
 	virtual void Landed(const FHitResult& Hit) override;
 
-	UFUNCTION(BlueprintCallable, Category=Movement)
-	void OnJumpInput();
+#pragma endregion
 	
-	UFUNCTION(BlueprintPure, Category = "Animation Parameters")
-	FORCEINLINE bool IsFalling() const { return !IsGrounded() && GetVelocity().Z <= 0.0f; }
-
-	UFUNCTION(BlueprintPure, Category = "Animation Parameters")
-	bool IsGrounded() const;
-
+#pragma region Wall Check
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Wall Check", meta=(AllowPrivateAccess = "true"))
+	FName WallTag =  FName(TEXT("Wall"));
+	
 	bool IsWallAbove() const;
 
-	void JumpToAnimationNode(const FName JumpToNodeName, const FName JumpToStateMachineName = NAME_None) const;
+#pragma endregion
 };

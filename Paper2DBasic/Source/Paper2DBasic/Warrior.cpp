@@ -34,6 +34,8 @@ AWarrior::AWarrior()
 	GetCharacterMovement()->AirControl = 0.9f;
 }
 
+#pragma region Life Circle Events
+
 void AWarrior::BeginPlay()
 {
 	Super::BeginPlay();
@@ -49,6 +51,15 @@ void AWarrior::Tick(float DeltaSeconds)
 	{
 		AddMovementInput(GetActorForwardVector());
 	}
+}
+
+#pragma endregion
+
+#pragma region Movement Functions
+
+void AWarrior::Attack()
+{
+	JumpToAnimationNode(JumpToAttackAnimNodeName);
 }
 
 void AWarrior::Move(const float InputActionValue)
@@ -100,7 +111,7 @@ void AWarrior::UnCrouch(bool bClientSimulation)
 {
 	HasCrouchedInput = false;
 	
-	if (IsSliding || IsWallAbove())
+	if (IsSliding)
 	{
 		return;
 	}
@@ -122,7 +133,7 @@ void AWarrior::StopSlide()
 {
 	IsSliding = false;
 
-	if (HasCrouchedInput)
+	if (HasCrouchedInput || IsWallAbove())
 	{
 		JumpToAnimationNode(JumpToCrouchingNodeName);
 		
@@ -131,6 +142,24 @@ void AWarrior::StopSlide()
 		
 	UnCrouch();
 }
+
+void AWarrior::OnJumpInput()
+{
+	if (IsSliding) return;
+		
+	if (bIsCrouched)
+	{
+		Slide();
+
+		return;
+	}
+
+	Jump();
+}
+
+#pragma endregion
+
+#pragma region Overrides
 
 void AWarrior::OnJumped_Implementation()
 {
@@ -151,6 +180,11 @@ void AWarrior::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpa
 
 void AWarrior::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
 {
+	if (!IsGrounded())
+	{
+		return;
+	}
+	
 	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
 	JumpToAnimationNode(JumpToCrouchNodeName);
 }
@@ -169,24 +203,18 @@ void AWarrior::Landed(const FHitResult& Hit)
 	}
 }
 
-void AWarrior::OnJumpInput()
-{
-	if (IsSliding) return;
-		
-	if (bIsCrouched)
-	{
-		Slide();
+#pragma endregion
 
-		return;
-	}
-
-	Jump();
-}
+#pragma region Boolean Flags
 
 bool AWarrior::IsGrounded() const
 {
 	return GetCharacterMovement()->IsMovingOnGround();
 }
+
+#pragma endregion
+
+#pragma region Wall Check
 
 bool AWarrior::IsWallAbove() const
 {
@@ -205,10 +233,18 @@ bool AWarrior::IsWallAbove() const
 	return HitResult.bBlockingHit && HitResult.GetActor()->ActorHasTag(WallTag);
 }
 
+#pragma endregion
+
+#pragma region Jump To Animation Node
+
 void AWarrior::JumpToAnimationNode(const FName JumpToNodeName, const FName JumpToStateMachineName) const
 {
 	GetAnimationComponent()->GetAnimInstance()->JumpToNode(JumpToNodeName, JumpToStateMachineName);
 }
+
+#pragma endregion
+
+#pragma region Public Usages
 
 void AWarrior::OnReceiveNotifyJumpToIdleOrRun() const
 {
@@ -221,3 +257,5 @@ void AWarrior::OnReceiveNotifyJumpToIdleOrRun() const
 		JumpToAnimationNode(JumpToIdleNodeName);
 	}
 }
+
+#pragma endregion

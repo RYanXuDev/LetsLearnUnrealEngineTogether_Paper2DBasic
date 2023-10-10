@@ -143,3 +143,26 @@
 9. PaperZD特有的动画通知(PaperZDAnimNotify与PaperZDAnimNotifyState)
 10. 如何创建并使用自定义动画通知(蓝图和C++)
 11. 使用动画通知与跳转节点重构动画状态机
+
+---
+
+【Ep.06】
+
+- 直播时间：2023年10月10日
+- YouTube: <https://youtube.com/live/GpESkySRl7g>
+- Bilibili: <>
+- 本期后半部分由于疏忽，忘记开麦克风了，因此没有录到阿严解说的声音 T_T
+
+主要内容：
+
+1. 使用#pragma region和#pragma endregion为代码分区
+2. 制作角色攻击动作动画
+3. 攻击的输入和逻辑
+4. 虚幻引擎里如何在游戏开始时隐藏鼠标光标并聚焦到游戏窗口
+5. 创建自定义玩家控制器
+6. 创建HitBox动画通知（蓝图与C++）
+7. 虚幻引擎里如何实现HitBox检测(蓝图)：BoxOverlapActors节点
+8. 关于虚幻引擎的C++编译环境
+9. Sprite的插口(Socket)
+10. 利用插口的位置偏移来实现HitBox的位移
+11. 虚幻引擎里如何实现HitBox检测(C++)：OverlapMultiByChannel函数
