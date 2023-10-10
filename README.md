@@ -150,7 +150,7 @@
 
 - 直播时间：2023年10月10日
 - YouTube: <https://youtube.com/live/GpESkySRl7g>
-- Bilibili: <>
+- Bilibili: <https://www.bilibili.com/video/BV1qC4y157zi>
 - 本期后半部分由于疏忽，忘记开麦克风了，因此没有录到阿严解说的声音 T_T
 
 主要内容：
