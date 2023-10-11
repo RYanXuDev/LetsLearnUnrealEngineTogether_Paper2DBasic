@@ -17,5 +17,17 @@ private:
 	FVector HitBoxHalfExtent = FVector(50.0f);
 
 	UPROPERTY(EditAnywhere, Category=Settings, meta=(AllowPrivateAccess="true"))
-	bool DrawDebug = true;
+	bool DrawDebug;
+
+	UPROPERTY(EditAnywhere, Category=Settings, meta=(AllowPrivateAccess="true"))
+	bool PrintMessage;
+	
+	UPROPERTY(EditAnywhere, Category=Settings, meta=(AllowPrivateAccess="true"))
+	float DebugLifeTime = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category=Settings, meta=(AllowPrivateAccess="true"))
+	FColor HitBoxColor = FColor::Red;
+	
+	UPROPERTY(EditAnywhere, Category=Settings, meta=(AllowPrivateAccess="true"))
+	FColor MessageColor = FColor::Yellow;
 };

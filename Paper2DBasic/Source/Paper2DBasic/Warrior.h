@@ -1,14 +1,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PaperZDCharacter.h"
+#include "CharacterBase.h"
 #include "Warrior.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
 
 UCLASS()
-class PAPER2DBASIC_API AWarrior : public APaperZDCharacter
+class PAPER2DBASIC_API AWarrior : public ACharacterBase
 {
 	GENERATED_BODY()
 public:
@@ -16,7 +16,7 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	void OnReceiveNotifyJumpToIdleOrRun() const;
+	void OnReceiveNotifyJumpToIdleOrRun();
 
 protected:
 	virtual void BeginPlay() override;
@@ -63,17 +63,19 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToSlideNodeName = FName("JumpToSlide");
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	FName JumpToStopSlidingNodeName = FName("JumpToStopSliding");
 
 #pragma endregion
 
 #pragma region Boolean Flags
-	
+
+	bool IsAttacking;
+	bool IsSliding;
 	bool HasMoveInput;
 	bool HasCrouchedInput;
 	bool RunAnimationTriggered;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Animation Parameters", meta=(AllowPrivateAccess = "true"))
-	bool IsSliding;
 		
 	UFUNCTION(BlueprintPure, Category = "Animation Parameters")
 	FORCEINLINE bool IsFalling() const { return !IsGrounded() && GetVelocity().Z <= 0.0f; }
@@ -84,6 +86,11 @@ private:
 #pragma endregion
 
 #pragma region Properties
+
+	const int32 MaxComboAttackIndex = 2;
+
+	UPROPERTY(BlueprintReadOnly, Category="Animation Parameters", meta=(AllowPrivateAccess="true"))
+	int32 ComboAttackIndex = 0;
 	
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide", meta=(AllowPrivateAccess = "true"))
 	float SlideDuration = 0.5f;
@@ -113,7 +120,7 @@ private:
 
 	void Slide();
 
-	void StopSlide();
+	void StopSliding();
 	
 	UFUNCTION(BlueprintCallable, Category=Movement)
 	void OnJumpInput();
@@ -125,8 +132,6 @@ private:
 	virtual void OnJumped_Implementation() override;
 
 	virtual void OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal, const FVector& PreviousFloorContactNormal, const FVector& PreviousLocation, float TimeDelta) override;
-
-	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
 	virtual void Landed(const FHitResult& Hit) override;
 

@@ -10,7 +10,7 @@ void UAnimNotify_JumpToIdleOrRun::OnReceiveNotify_Implementation(UPaperZDAnimIns
 
 	if (OwningInstance->GetOwningActor() == nullptr) return;
 	
-	if (const AWarrior* Warrior = Cast<AWarrior>(OwningInstance->GetOwningActor()); Warrior != nullptr)
+	if (AWarrior* Warrior = Cast<AWarrior>(OwningInstance->GetOwningActor()); Warrior != nullptr)
 	{
 		Warrior->OnReceiveNotifyJumpToIdleOrRun();
 	}

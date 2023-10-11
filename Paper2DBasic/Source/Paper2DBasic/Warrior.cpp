@@ -41,6 +41,7 @@ void AWarrior::BeginPlay()
 	Super::BeginPlay();
 
 	CrouchedSpriteOffset = FVector(DefaultSpriteOffset.X, DefaultSpriteOffset.Y, CrouchedSpriteHeight);
+	ComboAttackIndex = -1;
 }
 
 void AWarrior::Tick(float DeltaSeconds)
@@ -59,7 +60,12 @@ void AWarrior::Tick(float DeltaSeconds)
 
 void AWarrior::Attack()
 {
+	if (!IsGrounded() || bIsCrouched) return;
+		
+	if (IsAttacking) return;
+
 	JumpToAnimationNode(JumpToAttackAnimNodeName);
+	IsAttacking = true;
 }
 
 void AWarrior::Move(const float InputActionValue)
@@ -79,10 +85,12 @@ void AWarrior::Move(const float InputActionValue)
 		
 		return;
 	}
+
+	if (IsAttacking) return;
 	
 	AddMovementInput(FVector::ForwardVector, InputActionValue);
 
-	if (!RunAnimationTriggered)
+	if (!RunAnimationTriggered && IsGrounded())
 	{
 		JumpToAnimationNode(JumpToRunNodeName);
 		RunAnimationTriggered = true;
@@ -94,27 +102,27 @@ void AWarrior::StopMoving()
 	HasMoveInput = false;
 	RunAnimationTriggered = false;
 
-	if (IsGrounded())
-	{
-		JumpToAnimationNode(JumpToIdleNodeName);
-	}
+	if (IsAttacking || !IsGrounded() || IsSliding || bIsCrouched) return;
+
+	JumpToAnimationNode(JumpToIdleNodeName);
 }
 
 void AWarrior::Crouch(bool bClientSimulation)
 {
 	HasCrouchedInput = true;
+
+	if (IsAttacking || IsSliding || !IsGrounded() || IsWallAbove()) return;
+	
 	Super::Crouch(bClientSimulation);
 	GetSprite()->SetRelativeLocation(CrouchedSpriteOffset);
+	JumpToAnimationNode(JumpToCrouchNodeName);
 }
 
 void AWarrior::UnCrouch(bool bClientSimulation)
 {
 	HasCrouchedInput = false;
 	
-	if (IsSliding)
-	{
-		return;
-	}
+	if (!bIsCrouched || IsSliding || IsAttacking || IsWallAbove()) return;
 	
 	Super::UnCrouch(bClientSimulation);
 	GetSprite()->SetRelativeLocation(DefaultSpriteOffset);
@@ -126,28 +134,31 @@ void AWarrior::Slide()
 	JumpToAnimationNode(JumpToSlideNodeName);
 
 	FTimerHandle SlideTimerHandle;
-	GetWorldTimerManager().SetTimer(SlideTimerHandle, this, &AWarrior::StopSlide, SlideDuration);
+	GetWorldTimerManager().SetTimer(SlideTimerHandle, this, &AWarrior::StopSliding, SlideDuration);
 }
 
-void AWarrior::StopSlide()
+void AWarrior::StopSliding()
 {
 	IsSliding = false;
 
 	if (HasCrouchedInput || IsWallAbove())
 	{
+		GetSprite()->SetRelativeLocation(CrouchedSpriteOffset);
 		JumpToAnimationNode(JumpToCrouchingNodeName);
-		
-		return;
 	}
-		
-	UnCrouch();
+	else
+	{
+		Super::UnCrouch();
+		GetSprite()->SetRelativeLocation(DefaultSpriteOffset);
+		JumpToAnimationNode(JumpToStopSlidingNodeName);
+	}
 }
 
 void AWarrior::OnJumpInput()
 {
-	if (IsSliding) return;
+	if (IsAttacking || !IsGrounded()) return;
 		
-	if (bIsCrouched)
+	if (bIsCrouched && !IsSliding)
 	{
 		Slide();
 
@@ -178,22 +189,17 @@ void AWarrior::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpa
 	JumpToAnimationNode(JumpToFallNodeName);
 }
 
-void AWarrior::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
-{
-	if (!IsGrounded())
-	{
-		return;
-	}
-	
-	Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
-	JumpToAnimationNode(JumpToCrouchNodeName);
-}
-
 void AWarrior::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	if (HasMoveInput)
+	if (HasCrouchedInput)
+	{
+		Super::Crouch();
+		GetSprite()->SetRelativeLocation(CrouchedSpriteOffset);
+		JumpToAnimationNode(JumpToCrouchingNodeName);
+	}
+	else if (HasMoveInput)
 	{
 		JumpToAnimationNode(JumpToRunNodeName);
 	}
@@ -246,8 +252,19 @@ void AWarrior::JumpToAnimationNode(const FName JumpToNodeName, const FName JumpT
 
 #pragma region Public Usages
 
-void AWarrior::OnReceiveNotifyJumpToIdleOrRun() const
+void AWarrior::OnReceiveNotifyJumpToIdleOrRun()
 {
+	IsAttacking = false;
+
+	if (ComboAttackIndex >= MaxComboAttackIndex)
+	{
+		ComboAttackIndex = 0;
+	}
+	else
+	{
+		ComboAttackIndex++;
+	}
+
 	if (HasMoveInput)
 	{
 		JumpToAnimationNode(JumpToRunNodeName);
