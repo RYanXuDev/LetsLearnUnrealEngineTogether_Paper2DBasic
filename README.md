@@ -160,9 +160,28 @@
 3. 攻击的输入和逻辑
 4. 虚幻引擎里如何在游戏开始时隐藏鼠标光标并聚焦到游戏窗口
 5. 创建自定义玩家控制器
-6. 创建HitBox动画通知（蓝图与C++）
+6. 创建命中框(HitBox)动画通知（蓝图与C++）
 7. 虚幻引擎里如何实现HitBox检测(蓝图)：BoxOverlapActors节点
 8. 关于虚幻引擎的C++编译环境
 9. Sprite的插口(Socket)
 10. 利用插口的位置偏移来实现HitBox的位移
 11. 虚幻引擎里如何实现HitBox检测(C++)：OverlapMultiByChannel函数
+
+---
+
+【Ep.07】
+
+- 直播时间：2023年10月11日
+- YouTube: <https://youtube.com/live/L4uZ9rL1n1k>
+- Bilibili: <https://www.bilibili.com/video/BV1k84y117mP>
+
+主要内容：
+
+1. 解决连续按下攻击键时会不断触发攻击动画的问题
+2. 限制角色可以进行攻击的时机
+3. Bug修复时间：修复滑行时不触发滑行动画的问题
+4. 创建角色基类(CharacterBase)：玩家与所有敌人角色的父类
+5. 角色基类的作用：持有所有角色共有的功能函数、字段与委托等数据
+6. 声明角色攻击命中时的委托(FAttackHit)，当HitBox检测成功时调用这个委托
+7. HitBox动画通知类里的代码重构与Debug功能增加
+8. 实现简单的连段攻击(Combo Attacks)
