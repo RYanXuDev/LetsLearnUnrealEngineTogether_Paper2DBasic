@@ -185,3 +185,22 @@
 6. 声明角色攻击命中时的委托(FAttackHit)，当HitBox检测成功时调用这个委托
 7. HitBox动画通知类里的代码重构与Debug功能增加
 8. 实现简单的连段攻击(Combo Attacks)
+
+---
+
+【Ep.08】
+
+- 直播时间：2023年10月12日
+- YouTube: <https://youtube.com/live/p8QqcJVkPi4>
+- Bilibili: <https://www.bilibili.com/video/BV1bu411K7ih>
+
+主要内容：
+
+1. 跳跃攻击的简单实现
+2. 制作蓄力攻击(Charge Attack)三个阶段的动画(Pre-Charge, Charging, Release);
+3. 蓄力攻击的逻辑和动画调用
+4. 初始虚幻引擎的新粒子系统Niagara System
+5. Niagara粒子系统的工作原理和基础模块
+6. 制作蓄力攻击的粒子特效
+7. PaperZD动画状态的回调事件(进入状态/离开状态)
+8. 给蓄力攻击动画添加粒子效果（蓝图逻辑与C++源码）
