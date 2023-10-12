@@ -60,12 +60,36 @@ void AWarrior::Tick(float DeltaSeconds)
 
 void AWarrior::Attack()
 {
-	if (!IsGrounded() || bIsCrouched) return;
-		
-	if (IsAttacking) return;
+	if (IsAttacking || bIsCrouched) return;
 
 	JumpToAnimationNode(JumpToAttackAnimNodeName);
 	IsAttacking = true;
+	
+	if (ComboAttackIndex >= MaxComboAttackIndex)
+	{
+		ComboAttackIndex = 0;
+	}
+	else
+	{
+		ComboAttackIndex++;
+	}
+}
+
+void AWarrior::ChargeAttack()
+{
+	if (!IsGrounded() || IsAttacking || bIsCrouched) return;
+
+	JumpToAnimationNode(JumpToChargeAttackAnimNodeName);
+	IsAttacking = true;
+	IsCharging = true;
+}
+
+void AWarrior::ReleaseChargeAttack()
+{
+	if (!IsCharging) return;
+		
+	JumpToAnimationNode(JumpToChargeAttackReleaseAnimNodeName);
+	IsCharging = false;
 }
 
 void AWarrior::Move(const float InputActionValue)
@@ -94,6 +118,7 @@ void AWarrior::Move(const float InputActionValue)
 	{
 		JumpToAnimationNode(JumpToRunNodeName);
 		RunAnimationTriggered = true;
+		IsAttacking = false;
 	}
 }
 
@@ -176,6 +201,7 @@ void AWarrior::OnJumped_Implementation()
 {
 	Super::OnJumped_Implementation();
 	JumpToAnimationNode(JumpToJumpUpNodeName);
+	IsAttacking = false;
 }
 
 void AWarrior::OnWalkingOffLedge_Implementation(const FVector& PreviousFloorImpactNormal,
@@ -202,10 +228,12 @@ void AWarrior::Landed(const FHitResult& Hit)
 	else if (HasMoveInput)
 	{
 		JumpToAnimationNode(JumpToRunNodeName);
+		IsAttacking = false;
 	}
 	else
 	{
 		JumpToAnimationNode(JumpToLandAnimNodeName);
+		IsAttacking = false;
 	}
 }
 
@@ -255,15 +283,6 @@ void AWarrior::JumpToAnimationNode(const FName JumpToNodeName, const FName JumpT
 void AWarrior::OnReceiveNotifyJumpToIdleOrRun()
 {
 	IsAttacking = false;
-
-	if (ComboAttackIndex >= MaxComboAttackIndex)
-	{
-		ComboAttackIndex = 0;
-	}
-	else
-	{
-		ComboAttackIndex++;
-	}
 
 	if (HasMoveInput)
 	{

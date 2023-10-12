@@ -10,7 +10,7 @@ public class Paper2DBasic : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Paper2D" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "PaperZD" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "PaperZD", "Niagara" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

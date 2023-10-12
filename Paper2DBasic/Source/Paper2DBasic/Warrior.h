@@ -41,6 +41,12 @@ private:
 	FName JumpToAttackAnimNodeName = FName("JumpToAttack");
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	FName JumpToChargeAttackAnimNodeName = FName("JumpToChargeAttack");
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	FName JumpToChargeAttackReleaseAnimNodeName = FName("JumpToChargeAttackRelease");
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToLandAnimNodeName = FName("JumpToLand");
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
@@ -72,6 +78,7 @@ private:
 #pragma region Boolean Flags
 
 	bool IsAttacking;
+	bool IsCharging;
 	bool IsSliding;
 	bool HasMoveInput;
 	bool HasCrouchedInput;
@@ -104,15 +111,21 @@ private:
 
 #pragma endregion
 
-#pragma region Movement Functions
+#pragma region Action Functions
 
-	UFUNCTION(BlueprintCallable, Category = "Movement")
+	UFUNCTION(BlueprintCallable, Category=Actions)
 	void Attack();
+
+	UFUNCTION(BlueprintCallable, Category=Actions)
+	void ChargeAttack();
+
+	UFUNCTION(BlueprintCallable, Category=Actions)
+	void ReleaseChargeAttack();
 	
-	UFUNCTION(BlueprintCallable, Category = "Movement")
+	UFUNCTION(BlueprintCallable, Category=Actions)
 	void Move(const float InputActionValue);
 
-	UFUNCTION(BlueprintCallable, Category = "Movement")
+	UFUNCTION(BlueprintCallable, Category=Actions)
 	void StopMoving();
 
 	virtual void Crouch(bool bClientSimulation = false) override;
@@ -122,7 +135,7 @@ private:
 
 	void StopSliding();
 	
-	UFUNCTION(BlueprintCallable, Category=Movement)
+	UFUNCTION(BlueprintCallable, Category=Actions)
 	void OnJumpInput();
 
 #pragma endregion
