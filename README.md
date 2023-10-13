@@ -204,3 +204,20 @@
 6. 制作蓄力攻击的粒子特效
 7. PaperZD动画状态的回调事件(进入状态/离开状态)
 8. 给蓄力攻击动画添加粒子效果（蓝图逻辑与C++源码）
+
+---
+
+【Ep.09】
+
+- 直播时间：2023年10月13日
+- YouTube: <https://youtube.com/live/eYBqefb9feQ>
+- Bilibili: <https://www.bilibili.com/video/BV14j411x7Jg>
+
+主要内容：
+
+1. 使用状态机实现灵活的攻击连段系统(Combo Attacks System)
+2. 蓝图接口(Blueprint Interface)
+3. 虚幻引擎的枚举类型蓝图(Enumeration Blueprint)
+4. 虚幻引擎的Gameplay Tags
+5. 使用Gameplay Tags来取代Boolean Flags进行条件判断
+6. 攻击连段系统的实现(蓝图逻辑，未成功)
