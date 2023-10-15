@@ -5,6 +5,7 @@
 #include "Warrior.generated.h"
 
 class UCameraComponent;
+class UComboComponent;
 class USpringArmComponent;
 
 UCLASS()
@@ -16,7 +17,8 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
-	void OnReceiveNotifyJumpToIdleOrRun();
+	UFUNCTION(BlueprintCallable, Category=Actions)
+	void ResetAction();
 
 protected:
 	virtual void BeginPlay() override;
@@ -25,11 +27,14 @@ private:
 	
 #pragma region Components
 	
-	UPROPERTY(VisibleAnywhere, Category = "Components", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category=Components, meta=(AllowPrivateAccess="true"))
 	USpringArmComponent* SpringArmComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category=Components, meta=(AllowPrivateAccess="true"))
 	UCameraComponent* CameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Components, meta=(AllowPrivateAccess="true"))
+	UComboComponent* ComboComponent;
 
 #pragma endregion
 
@@ -76,7 +81,7 @@ private:
 #pragma endregion
 
 #pragma region Boolean Flags
-
+	
 	bool IsAttacking;
 	bool IsCharging;
 	bool IsSliding;
@@ -114,7 +119,10 @@ private:
 #pragma region Action Functions
 
 	UFUNCTION(BlueprintCallable, Category=Actions)
-	void Attack();
+	void LightAttack();
+	
+	UFUNCTION(BlueprintCallable, Category=Actions)
+	void HeavyAttack();
 
 	UFUNCTION(BlueprintCallable, Category=Actions)
 	void ChargeAttack();

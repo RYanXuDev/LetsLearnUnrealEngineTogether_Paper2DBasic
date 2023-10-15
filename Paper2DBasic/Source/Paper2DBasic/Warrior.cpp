@@ -1,5 +1,6 @@
 #include "Warrior.h"
 
+#include "ComboComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -20,6 +21,8 @@ AWarrior::AWarrior()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	ComboComponent = CreateDefaultSubobject<UComboComponent>(TEXT("Combo Component"));
 	
 	GetSprite()->SetCastShadow(true);
 	GetSprite()->SetRelativeLocation(DefaultSpriteOffset);
@@ -58,21 +61,20 @@ void AWarrior::Tick(float DeltaSeconds)
 
 #pragma region Movement Functions
 
-void AWarrior::Attack()
+void AWarrior::LightAttack()
 {
-	if (IsAttacking || bIsCrouched) return;
-
-	JumpToAnimationNode(JumpToAttackAnimNodeName);
-	IsAttacking = true;
+	if (bIsCrouched) return;
 	
-	if (ComboAttackIndex >= MaxComboAttackIndex)
-	{
-		ComboAttackIndex = 0;
-	}
-	else
-	{
-		ComboAttackIndex++;
-	}
+	IsAttacking = true;
+	ComboComponent->ComboCheck(EComboInput::LightAttack);
+}
+
+void AWarrior::HeavyAttack()
+{
+	if (bIsCrouched) return;
+	
+	IsAttacking = true;
+	ComboComponent->ComboCheck(EComboInput::HeavyAttack);
 }
 
 void AWarrior::ChargeAttack()
@@ -280,7 +282,7 @@ void AWarrior::JumpToAnimationNode(const FName JumpToNodeName, const FName JumpT
 
 #pragma region Public Usages
 
-void AWarrior::OnReceiveNotifyJumpToIdleOrRun()
+void AWarrior::ResetAction()
 {
 	IsAttacking = false;
 
