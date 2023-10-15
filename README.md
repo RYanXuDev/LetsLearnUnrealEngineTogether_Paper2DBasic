@@ -228,7 +228,7 @@
 
 - 直播时间：2023年10月14日
 - YouTube: <https://youtube.com/live/w1RmBcdk9M0>
-- Bilibili: <>
+- Bilibili: <https://www.bilibili.com/video/BV1Vu411T7Am>
 
 主要内容：
 
