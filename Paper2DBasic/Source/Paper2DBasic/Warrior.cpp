@@ -7,6 +7,7 @@
 #include "PaperFlipbookComponent.h"
 #include "PaperZDAnimationComponent.h"
 #include "PaperZDAnimInstance.h"
+#include "Components/CapsuleComponent.h"
 
 AWarrior::AWarrior()
 {
@@ -30,9 +31,11 @@ AWarrior::AWarrior()
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	GetCharacterMovement()->SetCrouchedHalfHeight(50.0f);
+	GetCharacterMovement()->SetPlaneConstraintAxisSetting(EPlaneConstraintAxisSetting::Y);
+	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 10000.0f, 0.0f);
-	GetCharacterMovement()->GravityScale = 4.0f;
+	GetCharacterMovement()->GravityScale = DefaultGravityScale;
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
 	GetCharacterMovement()->AirControl = 0.9f;
 }
@@ -44,7 +47,6 @@ void AWarrior::BeginPlay()
 	Super::BeginPlay();
 
 	CrouchedSpriteOffset = FVector(DefaultSpriteOffset.X, DefaultSpriteOffset.Y, CrouchedSpriteHeight);
-	ComboAttackIndex = -1;
 }
 
 void AWarrior::Tick(float DeltaSeconds)
@@ -54,6 +56,16 @@ void AWarrior::Tick(float DeltaSeconds)
 	if (IsSliding)
 	{
 		AddMovementInput(GetActorForwardVector());
+	}
+
+	if (IsFalling() && WallSlideCheck())
+	{
+		WallSlide();
+	}
+	else
+	{
+		GetCharacterMovement()->GravityScale = DefaultGravityScale;
+		IsWallSliding = false;
 	}
 }
 
@@ -112,7 +124,7 @@ void AWarrior::Move(const float InputActionValue)
 		return;
 	}
 
-	if (IsAttacking) return;
+	if (IsAttacking || IsDashing || IsWallSliding) return;
 	
 	AddMovementInput(FVector::ForwardVector, InputActionValue);
 
@@ -183,7 +195,14 @@ void AWarrior::StopSliding()
 
 void AWarrior::OnJumpInput()
 {
-	if (IsAttacking || !IsGrounded()) return;
+	if (IsWallSliding)
+	{
+		Jump();	//TODO: Wall Jump!
+
+		return;
+	}
+	
+	if (IsAttacking || !IsGrounded() || IsDashing) return;
 		
 	if (bIsCrouched && !IsSliding)
 	{
@@ -193,6 +212,61 @@ void AWarrior::OnJumpInput()
 	}
 
 	Jump();
+}
+
+void AWarrior::Dash()
+{
+	if (IsAttacking || !IsGrounded()) return;
+	
+	IsDashing = true;
+	LaunchCharacter(GetActorForwardVector() * DashSpeed, true, true);
+	ComboComponent->ComboCheck(EComboInput::Dash);
+}
+
+void AWarrior::OnEnterLocomotion()
+{
+	if (IsDashing)
+	{
+		JumpToAnimationNode(JumpToStopDashingNodeName);
+	}
+	else
+	{
+		ResetAction();
+	}
+}
+
+void AWarrior::WallSlide()
+{
+	if (IsWallSliding) return;
+
+	IsWallSliding = true;
+	
+	JumpToAnimationNode(JumpToWallSlideNodeName);
+	GetCharacterMovement()->Velocity = FVector::ZeroVector;
+	GetCharacterMovement()->GravityScale = WallSlideGravityScale;
+}
+
+bool AWarrior::WallSlideCheck() const
+{
+	FHitResult HitResult;
+	const FCollisionShape CheckShape = FCollisionShape::MakeCapsule(
+		GetCapsuleComponent()->GetScaledCapsuleRadius() + WallSlideTolerance,
+		GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	FCollisionQueryParams Params;
+
+	Params.AddIgnoredActor(this);
+	GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation(),
+		GetActorLocation(),
+		GetActorRotation().Quaternion(),
+		ECC_Visibility,
+		CheckShape,
+		Params);
+
+	if (HitResult.GetActor() == nullptr) return false;
+	
+	return HitResult.GetActor()->ActorHasTag(WallTag) && HitResult.bBlockingHit;
 }
 
 #pragma endregion
@@ -285,6 +359,7 @@ void AWarrior::JumpToAnimationNode(const FName JumpToNodeName, const FName JumpT
 void AWarrior::ResetAction()
 {
 	IsAttacking = false;
+	IsDashing = false;
 
 	if (HasMoveInput)
 	{

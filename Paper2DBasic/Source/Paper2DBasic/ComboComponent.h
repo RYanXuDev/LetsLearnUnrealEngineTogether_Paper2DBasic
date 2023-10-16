@@ -10,7 +10,8 @@ enum class EComboInput : uint8
 {
 	NoValue		UMETA(DISPLAYNAME = "No Value"),
 	LightAttack	UMETA(DISPLAYNAME = "Light Attack"),
-	HeavyAttack UMETA(DISPLAYNAME = "Heavy Attack")
+	HeavyAttack UMETA(DISPLAYNAME = "Heavy Attack"),
+	Dash		UMETA(DISPLAYNAME = "Dash")
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FComboFinishedEvent);

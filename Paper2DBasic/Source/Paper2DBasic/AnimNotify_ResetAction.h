@@ -2,10 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Notifies/PaperZDAnimNotify.h"
-#include "AnimNotify_JumpToIdleOrRun.generated.h"
+#include "AnimNotify_ResetAction.generated.h"
 
 UCLASS()
-class PAPER2DBASIC_API UAnimNotify_JumpToIdleOrRun : public UPaperZDAnimNotify
+class PAPER2DBASIC_API UAnimNotify_ResetAction : public UPaperZDAnimNotify
 {
 	GENERATED_BODY()
 

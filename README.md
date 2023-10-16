@@ -238,3 +238,19 @@
 4. 如何在蓝图里绑定C++声明的动态多播委托
 5. 阿严的代码编写习惯：函数封装 - 将片段性功能逻辑封装成一个个方便阅读的函数
 6. 代码重构与Bug修复
+
+---
+
+【Ep.11】
+
+- 直播时间：2023年10月14日
+- YouTube: <https://youtube.com/live/w1RmBcdk9M0>
+- Bilibili: <https://www.bilibili.com/video/BV1Vu411T7Am>
+
+主要内容：
+
+1. 实现玩家的冲刺(Dash)功能
+2. 实现玩家的冲刺攻击(Dash Attack)功能
+3. 虚幻引擎如何限制玩家只能在某个轴向移动 - 平面移动Planar Movement
+4. 滑墙(Wall Slide)检测
+5. 实现玩家的滑墙功能

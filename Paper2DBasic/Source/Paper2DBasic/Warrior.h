@@ -77,6 +77,12 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToStopSlidingNodeName = FName("JumpToStopSliding");
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	FName JumpToStopDashingNodeName = FName("JumpToStopDashing");
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	FName JumpToWallSlideNodeName = FName("JumpToWallSlide");
 
 #pragma endregion
 
@@ -84,7 +90,9 @@ private:
 	
 	bool IsAttacking;
 	bool IsCharging;
+	bool IsDashing;
 	bool IsSliding;
+	bool IsWallSliding;
 	bool HasMoveInput;
 	bool HasCrouchedInput;
 	bool RunAnimationTriggered;
@@ -99,16 +107,23 @@ private:
 
 #pragma region Properties
 
-	const int32 MaxComboAttackIndex = 2;
-
-	UPROPERTY(BlueprintReadOnly, Category="Animation Parameters", meta=(AllowPrivateAccess="true"))
-	int32 ComboAttackIndex = 0;
+	UPROPERTY(EditAnywhere, Category = "Actions|Default Settings", meta=(AllowPrivateAccess = "true"))
+	float DefaultGravityScale = 4.0f;
 	
-	UPROPERTY(EditAnywhere, Category = "Movement|Slide", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "Actions|Slide", meta=(AllowPrivateAccess = "true"))
 	float SlideDuration = 0.5f;
 	
-	UPROPERTY(EditAnywhere, Category = "Movement|Crouch", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "Actions|Crouch", meta=(AllowPrivateAccess = "true"))
 	float CrouchedSpriteHeight = 50.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Actions|Dash", meta=(AllowPrivateAccess = "true"))
+	float DashSpeed = 3000.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "Actions|Wall Slide", meta=(AllowPrivateAccess = "true"))
+	float WallSlideGravityScale = 0.3f;
+	
+	UPROPERTY(EditAnywhere, Category = "Actions|Wall Slide", meta=(AllowPrivateAccess = "true"))
+	float WallSlideTolerance = 0.5f;
 
 	const FVector DefaultSpriteOffset = FVector(25.0f, 0.0f, 18.0f);
 	
@@ -146,6 +161,14 @@ private:
 	UFUNCTION(BlueprintCallable, Category=Actions)
 	void OnJumpInput();
 
+	UFUNCTION(BlueprintCallable, Category=Actions)
+	void Dash();
+
+	UFUNCTION(BlueprintCallable, Category=Actions)
+	void OnEnterLocomotion();
+
+	void WallSlide();
+
 #pragma endregion
 
 #pragma region Overrides
@@ -164,6 +187,8 @@ private:
 	FName WallTag =  FName(TEXT("Wall"));
 	
 	bool IsWallAbove() const;
+	
+	bool WallSlideCheck() const;
 
 #pragma endregion
 };

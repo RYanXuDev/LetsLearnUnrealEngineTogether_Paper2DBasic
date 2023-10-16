@@ -1,8 +1,8 @@
-#include "AnimNotify_JumpToIdleOrRun.h"
+#include "AnimNotify_ResetAction.h"
 
 #include "Warrior.h"
 
-void UAnimNotify_JumpToIdleOrRun::OnReceiveNotify_Implementation(UPaperZDAnimInstance* OwningInstance)
+void UAnimNotify_ResetAction::OnReceiveNotify_Implementation(UPaperZDAnimInstance* OwningInstance)
 {
 	Super::OnReceiveNotify_Implementation(OwningInstance);
 
