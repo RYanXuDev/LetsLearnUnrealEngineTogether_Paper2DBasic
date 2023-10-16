@@ -243,9 +243,9 @@
 
 【Ep.11】
 
-- 直播时间：2023年10月14日
-- YouTube: <https://youtube.com/live/w1RmBcdk9M0>
-- Bilibili: <https://www.bilibili.com/video/BV1Vu411T7Am>
+- 直播时间：2023年10月16日
+- YouTube: <https://youtube.com/live/P1dNPuqcfC8>
+- Bilibili: <https://www.bilibili.com/video/BV1P84y1d7r4>
 
 主要内容：
 
