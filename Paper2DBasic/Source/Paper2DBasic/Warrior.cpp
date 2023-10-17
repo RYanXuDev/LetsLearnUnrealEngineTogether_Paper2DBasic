@@ -12,32 +12,34 @@
 AWarrior::AWarrior()
 {
 	JumpMaxHoldTime = 0.3f;
+	bUseControllerRotationYaw = false;
 	
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Boom"));
 	SpringArmComponent->SetupAttachment(RootComponent);
-	SpringArmComponent->TargetArmLength = 900.0f;
 	SpringArmComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 40.0f));
 	SpringArmComponent->SetRelativeRotation(FRotator(0.0f, -90.0f,  0.0f));
+	SpringArmComponent->TargetArmLength = 900.0f;
 	SpringArmComponent->bInheritYaw = false;
+	SpringArmComponent->bEnableCameraLag = true;
+	SpringArmComponent->CameraLagSpeed = 8.0f;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	ComboComponent = CreateDefaultSubobject<UComboComponent>(TEXT("Combo Component"));
 	
-	GetSprite()->SetCastShadow(true);
 	GetSprite()->SetRelativeLocation(DefaultSpriteOffset);
 	GetSprite()->SetRelativeScale3D(FVector(5.0f));
 
 	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	GetCharacterMovement()->SetCrouchedHalfHeight(50.0f);
-	GetCharacterMovement()->SetPlaneConstraintAxisSetting(EPlaneConstraintAxisSetting::Y);
-	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bCanWalkOffLedgesWhenCrouching = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 10000.0f, 0.0f);
 	GetCharacterMovement()->GravityScale = DefaultGravityScale;
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
 	GetCharacterMovement()->AirControl = 0.9f;
+	GetCharacterMovement()->MaxWalkSpeedCrouched = 600.0f;
 }
 
 #pragma region Life Circle Events
@@ -47,6 +49,8 @@ void AWarrior::BeginPlay()
 	Super::BeginPlay();
 
 	CrouchedSpriteOffset = FVector(DefaultSpriteOffset.X, DefaultSpriteOffset.Y, CrouchedSpriteHeight);
+
+	AttackHit.AddDynamic(this, &AWarrior::OnAttackHit);
 }
 
 void AWarrior::Tick(float DeltaSeconds)
@@ -179,9 +183,11 @@ void AWarrior::Slide()
 void AWarrior::StopSliding()
 {
 	IsSliding = false;
-
+	
 	if (HasCrouchedInput || IsWallAbove())
 	{
+		if (IsFalling()) return;
+		
 		GetSprite()->SetRelativeLocation(CrouchedSpriteOffset);
 		JumpToAnimationNode(JumpToCrouchingNodeName);
 	}
@@ -197,7 +203,7 @@ void AWarrior::OnJumpInput()
 {
 	if (IsWallSliding)
 	{
-		Jump();	//TODO: Wall Jump!
+		WallJump();
 
 		return;
 	}
@@ -216,11 +222,18 @@ void AWarrior::OnJumpInput()
 
 void AWarrior::Dash()
 {
-	if (IsAttacking || !IsGrounded()) return;
+	if (IsAttacking || IsDashing || bIsCrouched || !IsGrounded()) return;
 	
 	IsDashing = true;
-	LaunchCharacter(GetActorForwardVector() * DashSpeed, true, true);
+	GetCharacterMovement()->bCanWalkOffLedges = false;
+	GetCharacterMovement()->AddImpulse(GetActorForwardVector() * DashSpeed + GetActorUpVector() * -1.0f * DefaultGravityScale, true);
 	ComboComponent->ComboCheck(EComboInput::Dash);
+}
+
+void AWarrior::StopDashing()
+{
+	IsDashing = false;
+	GetCharacterMovement()->bCanWalkOffLedges = true;
 }
 
 void AWarrior::OnEnterLocomotion()
@@ -244,6 +257,18 @@ void AWarrior::WallSlide()
 	JumpToAnimationNode(JumpToWallSlideNodeName);
 	GetCharacterMovement()->Velocity = FVector::ZeroVector;
 	GetCharacterMovement()->GravityScale = WallSlideGravityScale;
+}
+
+void AWarrior::WallJump()
+{
+	JumpToAnimationNode(JumpToJumpUpNodeName);
+	
+	const FVector HorizontalVelocity = GetActorForwardVector() * -1.0f * WallJumpVelocity.X;
+	const FVector VerticalVelocity = GetActorUpVector() * WallJumpVelocity.Z;
+	const FVector NewVelocity = HorizontalVelocity + VerticalVelocity;
+	LaunchCharacter(NewVelocity, true, true);
+
+	SetActorRotation((GetActorForwardVector() * -1.0).Rotation());
 }
 
 bool AWarrior::WallSlideCheck() const
@@ -347,8 +372,13 @@ bool AWarrior::IsWallAbove() const
 
 #pragma region Jump To Animation Node
 
-void AWarrior::JumpToAnimationNode(const FName JumpToNodeName, const FName JumpToStateMachineName) const
+void AWarrior::JumpToAnimationNode(const FName JumpToNodeName, FName JumpToStateMachineName) const
 {
+	if (JumpToStateMachineName == NAME_None)
+	{
+		JumpToStateMachineName = LocomotionStateMachineName;
+	}
+	
 	GetAnimationComponent()->GetAnimInstance()->JumpToNode(JumpToNodeName, JumpToStateMachineName);
 }
 
@@ -369,6 +399,15 @@ void AWarrior::ResetAction()
 	{
 		JumpToAnimationNode(JumpToIdleNodeName);
 	}
+}
+
+#pragma endregion
+
+#pragma region Others
+
+void AWarrior::OnAttackHit(ACharacterBase* CharacterHit)
+{
+	CharacterHit->GetAnimInstance()->PlayAnimationOverride(CharacterHit->GetHurtAnimSequence());
 }
 
 #pragma endregion

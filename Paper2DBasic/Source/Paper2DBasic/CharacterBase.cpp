@@ -3,6 +3,18 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "PaperFlipbookComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
+ACharacterBase::ACharacterBase()
+{
+	GetSprite()->SetCastShadow(true);
+	
+	GetCapsuleComponent()->CanCharacterStepUpOn = ECB_No;
+
+	GetCharacterMovement()->SetPlaneConstraintAxisSetting(EPlaneConstraintAxisSetting::Y);
+	GetCharacterMovement()->bConstrainToPlane = true;
+}
 
 UNiagaraComponent* ACharacterBase::SpawnVfx(UNiagaraSystem* Template, const FName SocketName) const
 {

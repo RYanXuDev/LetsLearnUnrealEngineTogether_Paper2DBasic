@@ -4,6 +4,7 @@
 #include "PaperZDCharacter.h"
 #include "CharacterBase.generated.h"
 
+class UPaperZDAnimSequence;
 class UNiagaraComponent;
 class UNiagaraSystem;
 
@@ -16,7 +17,11 @@ class PAPER2DBASIC_API ACharacterBase : public APaperZDCharacter
 
 public:
 
+	ACharacterBase();
+
 	FAttackHit AttackHit;
+
+	FORCEINLINE UPaperZDAnimSequence* GetHurtAnimSequence() const { return HurtAnimSequence; }
 
 protected:
 
@@ -27,6 +32,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category=VFX)
 	void PoolChargeVfx() const;
+
+	UPROPERTY(EditDefaultsOnly, Category=Animations, meta=(AllowPrivateAccess="true"));
+	UPaperZDAnimSequence* HurtAnimSequence;
 
 private:
 

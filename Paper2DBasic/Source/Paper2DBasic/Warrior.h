@@ -21,6 +21,7 @@ public:
 	void ResetAction();
 
 protected:
+	
 	virtual void BeginPlay() override;
 
 private:
@@ -40,48 +41,54 @@ private:
 
 #pragma region Jump To Animation Nodes
 
-	void JumpToAnimationNode(const FName JumpToNodeName, const FName JumpToStateMachineName = NAME_None) const;
+	void JumpToAnimationNode(const FName JumpToNodeName, FName JumpToStateMachineName = NAME_None) const;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|State Machine Name", meta=(AllowPrivateAccess = "true"))
+	FName LocomotionStateMachineName = FName(TEXT("Locomotion"));
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|State Machine Name", meta=(AllowPrivateAccess = "true"))
+	FName ComboStateMachineName = FName(TEXT("Combo"));
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToAttackAnimNodeName = FName("JumpToAttack");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToChargeAttackAnimNodeName = FName("JumpToChargeAttack");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToChargeAttackReleaseAnimNodeName = FName("JumpToChargeAttackRelease");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToLandAnimNodeName = FName("JumpToLand");
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToJumpUpNodeName = FName("JumpToJumpUp");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToFallNodeName = FName("JumpToFall");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToCrouchNodeName = FName("JumpToCrouch");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToCrouchingNodeName = FName("JumpToCrouching");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToRunNodeName = FName("JumpToRun");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToIdleNodeName = FName("JumpToIdle");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToSlideNodeName = FName("JumpToSlide");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToStopSlidingNodeName = FName("JumpToStopSliding");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToStopDashingNodeName = FName("JumpToStopDashing");
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Animation Node Name", meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToWallSlideNodeName = FName("JumpToWallSlide");
 
 #pragma endregion
@@ -117,13 +124,16 @@ private:
 	float CrouchedSpriteHeight = 50.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Actions|Dash", meta=(AllowPrivateAccess = "true"))
-	float DashSpeed = 3000.0f;
+	float DashSpeed = 8000.0f;
 	
 	UPROPERTY(EditAnywhere, Category = "Actions|Wall Slide", meta=(AllowPrivateAccess = "true"))
-	float WallSlideGravityScale = 0.3f;
+	float WallSlideGravityScale = 0.1f;
 	
 	UPROPERTY(EditAnywhere, Category = "Actions|Wall Slide", meta=(AllowPrivateAccess = "true"))
-	float WallSlideTolerance = 0.5f;
+	float WallSlideTolerance = 2.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Actions|Wall Jump", meta=(AllowPrivateAccess = "true"))
+	FVector WallJumpVelocity = FVector(600.0f, 0.0f, 1000.0f);
 
 	const FVector DefaultSpriteOffset = FVector(25.0f, 0.0f, 18.0f);
 	
@@ -131,7 +141,7 @@ private:
 
 #pragma endregion
 
-#pragma region Action Functions
+#pragma region Actions
 
 	UFUNCTION(BlueprintCallable, Category=Actions)
 	void LightAttack();
@@ -165,9 +175,14 @@ private:
 	void Dash();
 
 	UFUNCTION(BlueprintCallable, Category=Actions)
+	void StopDashing();
+
+	UFUNCTION(BlueprintCallable, Category=Actions)
 	void OnEnterLocomotion();
 
 	void WallSlide();
+
+	void WallJump();
 
 #pragma endregion
 
@@ -190,5 +205,12 @@ private:
 	
 	bool WallSlideCheck() const;
 
+#pragma endregion
+
+#pragma region Others
+
+	UFUNCTION()
+	void OnAttackHit(ACharacterBase* CharacterHit);
+	
 #pragma endregion
 };
