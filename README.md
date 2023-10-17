@@ -254,3 +254,23 @@
 3. 虚幻引擎如何限制玩家只能在某个轴向移动 - 平面移动Planar Movement
 4. 滑墙(Wall Slide)检测
 5. 实现玩家的滑墙功能
+
+---
+
+【Ep.12】
+
+- 直播时间：2023年10月17日
+- YouTube: <https://youtube.com/live/xMMywpzX7ic>
+- Bilibili: <https://www.bilibili.com/video/BV17y4y1K7Dr>
+
+主要内容：
+
+1. 冲刺功能的修正与改进
+2. 虚幻引擎中给角色施加力的几种方法
+3. 滑墙动画的改进
+4. 实现蹬墙跳(Wall Jump)
+5. 如何防止玩家在地面移动时掉下悬崖
+6. 学习时如何获取有用的信息 - 官方文档
+7. 创建敌人角色死亡使者(Bringer Of Death)
+8. PaperZD的PlayAnimationOverride（类似3D动画里Montage的功能）
+9. 简单实现角色受伤时的效果(受伤动画)
