@@ -274,3 +274,30 @@
 7. 创建敌人角色死亡使者(Bringer Of Death)
 8. PaperZD的PlayAnimationOverride（类似3D动画里Montage的功能）
 9. 简单实现角色受伤时的效果(受伤动画)
+
+---
+
+【Ep.13】
+
+- 直播时间：2023年10月17日
+- YouTube: <https://youtube.com/live/GFgtB6GtL1c>
+- Bilibili: <https://www.bilibili.com/video/BV1ww411X7rr>
+
+主要内容：
+
+1. 什么是命中停顿(Hit Stop)
+2. 关于樱井政博以及他的游戏开发知识频道
+3. 如何在虚幻引擎里实现命中停顿
+4. 虚幻引擎的时间膨胀(Time Dilation)与帧间隔时间(Delta Seconds)
+5. 什么是命中震动(Hit Shake)
+6. 在虚幻引擎里实现命中震动的几种方法
+7. 初识虚幻引擎的材质编辑器(Material Editor)
+8. 材质与材质实例的关系(Material &. Material Instance)
+9. 让材质UV产生偏移
+10. 正弦波(Sine)材质节点的应用
+11. 如何实时地切换材质
+12. 如何在虚幻引擎里实现命中震动
+13. 添加攻击命中时的屏幕震动
+14. 什么是数据资产(Data Asset)：虚幻引擎的ScriptableObject
+15. 创建攻击数据类(AttackData)：角色攻击数据的容器
+16. 攻击数据的使用：让角色的每一段攻击都有自己独立的数据
