@@ -40,6 +40,7 @@ AWarrior::AWarrior()
 	GetCharacterMovement()->JumpZVelocity = 800.0f;
 	GetCharacterMovement()->AirControl = 0.9f;
 	GetCharacterMovement()->MaxWalkSpeedCrouched = 600.0f;
+	GetCharacterMovement()->LedgeCheckThreshold = 100.0f;
 }
 
 #pragma region Life Circle Events
@@ -49,8 +50,6 @@ void AWarrior::BeginPlay()
 	Super::BeginPlay();
 
 	CrouchedSpriteOffset = FVector(DefaultSpriteOffset.X, DefaultSpriteOffset.Y, CrouchedSpriteHeight);
-
-	AttackHit.AddDynamic(this, &AWarrior::OnAttackHit);
 }
 
 void AWarrior::Tick(float DeltaSeconds)
@@ -404,10 +403,5 @@ void AWarrior::ResetAction()
 #pragma endregion
 
 #pragma region Others
-
-void AWarrior::OnAttackHit(ACharacterBase* CharacterHit)
-{
-	CharacterHit->GetAnimInstance()->PlayAnimationOverride(CharacterHit->GetHurtAnimSequence());
-}
 
 #pragma endregion

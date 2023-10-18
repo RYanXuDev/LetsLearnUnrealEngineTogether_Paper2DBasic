@@ -209,8 +209,7 @@ private:
 
 #pragma region Others
 
-	UFUNCTION()
-	void OnAttackHit(ACharacterBase* CharacterHit);
+	
 	
 #pragma endregion
 };

@@ -4,6 +4,8 @@
 #include "Notifies/PaperZDAnimNotify.h"
 #include "AnimNotify_HitBox.generated.h"
 
+class UAttackData;
+
 UCLASS()
 class PAPER2DBASIC_API UAnimNotify_HitBox : public UPaperZDAnimNotify
 {
@@ -13,6 +15,9 @@ protected:
 	virtual void OnReceiveNotify_Implementation(UPaperZDAnimInstance* OwningInstance) override;
 
 private:
+	UPROPERTY(EditAnywhere, Category=Settings, meta=(AllowPrivateAccess="true"))
+	UAttackData* AttackData;
+	
 	UPROPERTY(EditAnywhere, Category=Settings, meta=(AllowPrivateAccess="true"))
 	FVector HitBoxHalfExtent = FVector(50.0f);
 

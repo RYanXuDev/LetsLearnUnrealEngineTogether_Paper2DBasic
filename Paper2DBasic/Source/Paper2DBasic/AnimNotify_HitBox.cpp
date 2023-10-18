@@ -1,5 +1,6 @@
 #include "AnimNotify_HitBox.h"
 
+#include "AttackData.h"
 #include "CharacterBase.h"
 
 void UAnimNotify_HitBox::OnReceiveNotify_Implementation(UPaperZDAnimInstance* OwningInstance)
@@ -40,12 +41,12 @@ void UAnimNotify_HitBox::OnReceiveNotify_Implementation(UPaperZDAnimInstance* Ow
 
 			if (ACharacterBase* CharacterHit = Cast<ACharacterBase>(OverlapResult.GetActor()); CharacterHit != nullptr)
 			{
-				Character->AttackHit.Broadcast(CharacterHit);
+				Character->AttackHit.Broadcast(CharacterHit, AttackData);
 
 				if (PrintMessage)
 				{
 					GEngine->AddOnScreenDebugMessage(-1, 1.0f, MessageColor,
-						FString::Printf(TEXT("Hit box detected %s"), *CharacterHit->GetActorNameOrLabel()));
+						FString::Printf(TEXT("Hit box detected %s, Damage: %f"), *CharacterHit->GetActorNameOrLabel(), AttackData->GetDamage()));
 				}
 			}
 		}
