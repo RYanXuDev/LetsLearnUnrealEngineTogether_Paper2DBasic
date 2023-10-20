@@ -4,6 +4,7 @@
 #include "CharacterBase.h"
 #include "Warrior.generated.h"
 
+class USpriteScaleComponent;
 class UCameraComponent;
 class UComboComponent;
 class USpringArmComponent;
@@ -36,6 +37,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Components, meta=(AllowPrivateAccess="true"))
 	UComboComponent* ComboComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Components, meta=(AllowPrivateAccess="true"))
+	USpriteScaleComponent* SpriteScaleComponent;
 
 #pragma endregion
 
@@ -203,13 +207,12 @@ private:
 	
 	bool IsWallAbove() const;
 	
-	bool WallSlideCheck() const;
+	bool WallSlideCheck();
 
 #pragma endregion
 
 #pragma region Others
 
-	
 	
 #pragma endregion
 };

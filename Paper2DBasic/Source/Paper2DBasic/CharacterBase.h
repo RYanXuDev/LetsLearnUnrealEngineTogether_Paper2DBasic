@@ -4,6 +4,8 @@
 #include "PaperZDCharacter.h"
 #include "CharacterBase.generated.h"
 
+class UVisualEffectsComponent;
+class UAttackComponent;
 class UAttackData;
 class UPaperZDAnimSequence;
 class UNiagaraComponent;
@@ -23,23 +25,34 @@ public:
 	FAttackHit AttackHit;
 
 	FORCEINLINE UPaperZDAnimSequence* GetHurtAnimSequence() const { return HurtAnimSequence; }
+	
+	void StartHitStop(const float InHitStopDuration);
+
+	void EndHitStop();
+
+	void SetMaterial(UMaterialInstance* InMaterialInstance) const;
+
+	void StartSpriteShake(const float InShakeDuration);
+
+	void EndSpriteShake() const;
+	
+	void ApplyForce(const FVector& InVelocity) const;
+	
+	void PlayHurtAnimationOverride() const;
 
 protected:
 
 	virtual void BeginPlay() override;
 
-	UNiagaraComponent* SpawnVfx(UNiagaraSystem* Template, const FName SocketName) const;
-
-	UFUNCTION(BlueprintCallable, Category=VFX)
-	void SpawnChargeVfx(UNiagaraSystem* Template);
-
-	UFUNCTION(BlueprintCallable, Category=VFX)
-	void PoolChargeVfx() const;
-
 private:
 
-	UPROPERTY()
-	UNiagaraComponent* ChargeVfxToPool;
+	UPROPERTY(VisibleAnywhere, Category="Components", meta=(AllowPrivateAccess="true"))
+	UAttackComponent* AttackComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
+	UVisualEffectsComponent* VisualEffectsComponent;
+	
+	bool HasSuperArmor;
 
 	UPROPERTY(EditDefaultsOnly, Category=Animations, meta=(AllowPrivateAccess="true"))
 	UPaperZDAnimSequence* HurtAnimSequence;
@@ -49,17 +62,4 @@ private:
 
 	UPROPERTY()
 	UMaterialInstance* DefaultMaterialInstance;
-
-	void StartHitStop(const float InHitStopDuration);
-
-	void EndHitStop();
-
-	void SetMaterial(UMaterialInstance* InMaterialInstance) const;
-
-	void StartSpriteShake(UMaterialInstance* ShakeMaterialInstance, const float InShakeDuration);
-
-	void EndSpriteShake() const;
-	
-	UFUNCTION()
-	void OnAttackHit(ACharacterBase* CharacterHit, const UAttackData* AttackData);
 };

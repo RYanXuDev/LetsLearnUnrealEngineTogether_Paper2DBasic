@@ -8,7 +8,15 @@ public class Paper2DBasic : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Paper2D", "GameplayTags" });
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"Paper2D", 
+			"GameplayTags"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "PaperZD", "Niagara" });
 

@@ -1,15 +1,18 @@
 #include "CharacterBase.h"
 
-#include "AttackData.h"
-#include "NiagaraComponent.h"
-#include "NiagaraFunctionLibrary.h"
+#include "AttackComponent.h"
 #include "PaperFlipbookComponent.h"
 #include "PaperZDAnimInstance.h"
+#include "VisualEffectsComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 ACharacterBase::ACharacterBase()
 {
+	AttackComponent = CreateDefaultSubobject<UAttackComponent>(TEXT("Attack Component"));
+
+	VisualEffectsComponent = CreateDefaultSubobject<UVisualEffectsComponent>(TEXT("VFX Component"));
+	
 	GetSprite()->SetCastShadow(true);
 	
 	GetCapsuleComponent()->CanCharacterStepUpOn = ECB_No;
@@ -23,32 +26,6 @@ void ACharacterBase::BeginPlay()
 	Super::BeginPlay();
 
 	DefaultMaterialInstance = Cast<UMaterialInstance>(GetSprite()->GetMaterial(0));
-	
-	AttackHit.AddDynamic(this, &ACharacterBase::OnAttackHit);
-}
-
-UNiagaraComponent* ACharacterBase::SpawnVfx(UNiagaraSystem* Template, const FName SocketName) const
-{
-	return UNiagaraFunctionLibrary::SpawnSystemAttached(
-		Template,
-		GetSprite(),
-		SocketName,
-		FVector::Zero(),
-		FRotator(0.0f, 0.0f, 0.0f),
-		EAttachLocation::SnapToTarget,
-		false,
-		true,
-		ENCPoolMethod::ManualRelease);
-}
-
-void ACharacterBase::SpawnChargeVfx(UNiagaraSystem* Template)
-{
-	ChargeVfxToPool = SpawnVfx(Template, FName(TEXT("ChargeLocation")));
-}
-
-void ACharacterBase::PoolChargeVfx() const
-{
-	ChargeVfxToPool->ReleaseToPool();
 }
 
 void ACharacterBase::StartHitStop(const float InHitStopDuration)
@@ -71,9 +48,9 @@ void ACharacterBase::SetMaterial(UMaterialInstance* InMaterialInstance) const
 	GetSprite()->SetMaterial(0, InMaterialInstance);
 }
 
-void ACharacterBase::StartSpriteShake(UMaterialInstance* ShakeMaterialInstance, const float InShakeDuration)
+void ACharacterBase::StartSpriteShake(const float InShakeDuration)
 {
-	SetMaterial(ShakeMaterialInstance);
+	SetMaterial(HitMaterialInstance);
 
 	FTimerHandle HitStopTimerHandle;
 	GetWorldTimerManager().SetTimer(HitStopTimerHandle, this, &ACharacterBase::EndSpriteShake, InShakeDuration);
@@ -84,14 +61,14 @@ void ACharacterBase::EndSpriteShake() const
 	SetMaterial(DefaultMaterialInstance);
 }
 
-void ACharacterBase::OnAttackHit(ACharacterBase* CharacterHit, const UAttackData* AttackData)
+void ACharacterBase::ApplyForce(const FVector& InVelocity) const
 {
-	StartHitStop(AttackData->GetHitStopDuration());
-	GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(AttackData->GetHitCameraShake());
-	CharacterHit->StartHitStop(AttackData->GetHitStopDuration());
-	CharacterHit->StartSpriteShake(HitMaterialInstance, AttackData->GetHitStopDuration());
-	
-	if (CharacterHit->GetAnimInstance() == nullptr || CharacterHit->HurtAnimSequence == nullptr) return;
+	GetCharacterMovement()->AddImpulse(InVelocity, true);
+}
+
+void ACharacterBase::PlayHurtAnimationOverride() const
+{
+	if (GetAnimInstance() == nullptr || HurtAnimSequence == nullptr || HasSuperArmor) return;
 		
-	CharacterHit->GetAnimInstance()->PlayAnimationOverride(CharacterHit->HurtAnimSequence);
+	GetAnimInstance()->PlayAnimationOverride(HurtAnimSequence);
 }

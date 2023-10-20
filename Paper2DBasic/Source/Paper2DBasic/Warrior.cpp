@@ -7,6 +7,7 @@
 #include "PaperFlipbookComponent.h"
 #include "PaperZDAnimationComponent.h"
 #include "PaperZDAnimInstance.h"
+#include "SpriteScaleComponent.h"
 #include "Components/CapsuleComponent.h"
 
 AWarrior::AWarrior()
@@ -27,6 +28,8 @@ AWarrior::AWarrior()
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	ComboComponent = CreateDefaultSubobject<UComboComponent>(TEXT("Combo Component"));
+
+	SpriteScaleComponent = CreateDefaultSubobject<USpriteScaleComponent>(TEXT("Sprite Scale Component"));
 	
 	GetSprite()->SetRelativeLocation(DefaultSpriteOffset);
 	GetSprite()->SetRelativeScale3D(FVector(5.0f));
@@ -43,7 +46,7 @@ AWarrior::AWarrior()
 	GetCharacterMovement()->LedgeCheckThreshold = 100.0f;
 }
 
-#pragma region Life Circle Events
+#pragma region Lifecycle Events
 
 void AWarrior::BeginPlay()
 {
@@ -270,7 +273,7 @@ void AWarrior::WallJump()
 	SetActorRotation((GetActorForwardVector() * -1.0).Rotation());
 }
 
-bool AWarrior::WallSlideCheck() const
+bool AWarrior::WallSlideCheck()
 {
 	FHitResult HitResult;
 	const FCollisionShape CheckShape = FCollisionShape::MakeCapsule(
@@ -290,6 +293,15 @@ bool AWarrior::WallSlideCheck() const
 
 	if (HitResult.GetActor() == nullptr) return false;
 	
+	if (HitResult.Normal.X > 0.0f)
+	{
+		SetActorRotation(FRotator(0.0f, 180.0f, 0.0f));
+	}
+	else if (HitResult.Normal.X < 0.0f)
+	{
+		SetActorRotation(FRotator(0.0f));
+	}
+	
 	return HitResult.GetActor()->ActorHasTag(WallTag) && HitResult.bBlockingHit;
 }
 
@@ -301,6 +313,7 @@ void AWarrior::OnJumped_Implementation()
 {
 	Super::OnJumped_Implementation();
 	JumpToAnimationNode(JumpToJumpUpNodeName);
+	SpriteScaleComponent->JumpSqueeze();
 	IsAttacking = false;
 }
 
@@ -332,6 +345,7 @@ void AWarrior::Landed(const FHitResult& Hit)
 	}
 	else
 	{
+		SpriteScaleComponent->LandSquash();
 		JumpToAnimationNode(JumpToLandAnimNodeName);
 		IsAttacking = false;
 	}
