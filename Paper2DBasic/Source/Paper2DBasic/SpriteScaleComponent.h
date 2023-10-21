@@ -45,5 +45,11 @@ private:
 
 	float CurveStartTime;
 
-	void ScaleSprite() const;
+	float CurveMaxTime;
+
+	bool ShouldScale;
+
+	void ScaleSprite();
+	
+	void Initialize(const FVector& ScaleMultiplier);
 };

@@ -4,6 +4,7 @@
 #include "CharacterBase.h"
 #include "Warrior.generated.h"
 
+class USensorComponent;
 class USpriteScaleComponent;
 class UCameraComponent;
 class UComboComponent;
@@ -29,10 +30,10 @@ private:
 	
 #pragma region Components
 	
-	UPROPERTY(VisibleAnywhere, Category=Components, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Components, meta=(AllowPrivateAccess="true"))
 	USpringArmComponent* SpringArmComponent;
 
-	UPROPERTY(VisibleAnywhere, Category=Components, meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Components, meta=(AllowPrivateAccess="true"))
 	UCameraComponent* CameraComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Components, meta=(AllowPrivateAccess="true"))
@@ -40,6 +41,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Components, meta=(AllowPrivateAccess="true"))
 	USpriteScaleComponent* SpriteScaleComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Components, meta=(AllowPrivateAccess="true"))
+	USensorComponent* SensorComponent;
 
 #pragma endregion
 
@@ -95,6 +99,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
 	FName JumpToWallSlideNodeName = FName("JumpToWallSlide");
 
+	UPROPERTY(EditDefaultsOnly, Category = "Animations|Jump Node Name", meta=(AllowPrivateAccess = "true"))
+	FName LedgeGrabNodeName = FName(TEXT("JumpToLedgeGrab"));
+
 #pragma endregion
 
 #pragma region Boolean Flags
@@ -103,7 +110,7 @@ private:
 	bool IsCharging;
 	bool IsDashing;
 	bool IsSliding;
-	bool IsWallSliding;
+	bool IsOnTheWall;
 	bool HasMoveInput;
 	bool HasCrouchedInput;
 	bool RunAnimationTriggered;
@@ -187,6 +194,8 @@ private:
 	void WallSlide();
 
 	void WallJump();
+
+	void LedgeGrab();
 
 #pragma endregion
 

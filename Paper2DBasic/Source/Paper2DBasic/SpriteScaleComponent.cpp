@@ -7,11 +7,26 @@
 USpriteScaleComponent::USpriteScaleComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	if (Curve != nullptr) return;
+
+	const TCHAR* CurvePath = TEXT("/Script/Engine.CurveFloat'/Game/Data/Curves/CF_SpriteScale.CF_SpriteScale'");
+	static ConstructorHelpers::FObjectFinder<UCurveFloat> CurveFinder(CurvePath);
+
+	if (CurveFinder.Succeeded())
+	{
+		Curve = CurveFinder.Object;
+	}
 }
 
 void USpriteScaleComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (Curve == nullptr) return;
+
+	float CurveMinTime;
+	Curve->GetTimeRange(CurveMinTime, CurveMaxTime);
 
 	Character = Cast<ACharacterBase>(GetOwner());
 
@@ -24,25 +39,38 @@ void USpriteScaleComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (!ShouldScale) return;
+		
 	ScaleSprite();
 }
 
-void USpriteScaleComponent::ScaleSprite() const
+void USpriteScaleComponent::ScaleSprite()
 {
 	const float ElapsedTime = GetWorld()->GetWorld()->GetTimeSeconds() - CurveStartTime;
+
+	if (ElapsedTime > CurveMaxTime)
+	{
+		ShouldScale = false;
+	}
+	
 	const float CurveValue = Curve->GetFloatValue(ElapsedTime);
 	const FVector NewScale = UKismetMathLibrary::VLerp(DefaultSpriteScale, TargetSpriteScale, CurveValue);
 	Character->GetSprite()->SetRelativeScale3D(NewScale);
 }
 
+void USpriteScaleComponent::Initialize(const FVector& ScaleMultiplier)
+{
+	ShouldScale = true;
+	CurveStartTime = GetWorld()->GetTimeSeconds();
+	TargetSpriteScale = DefaultSpriteScale * ScaleMultiplier;
+}
+
 void USpriteScaleComponent::JumpSqueeze()
 {
-	CurveStartTime = GetWorld()->GetTimeSeconds();
-	TargetSpriteScale = DefaultSpriteScale * JumpSqueezeScaleMultiplier;
+	Initialize(JumpSqueezeScaleMultiplier);
 }
 
 void USpriteScaleComponent::LandSquash()
 {
-	CurveStartTime = GetWorld()->GetTimeSeconds();
-	TargetSpriteScale = DefaultSpriteScale * LandSquashScaleMultiplier;
+	Initialize(LandSquashScaleMultiplier);
 }

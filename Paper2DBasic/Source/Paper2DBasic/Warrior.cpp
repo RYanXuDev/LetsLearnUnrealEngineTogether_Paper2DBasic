@@ -7,8 +7,10 @@
 #include "PaperFlipbookComponent.h"
 #include "PaperZDAnimationComponent.h"
 #include "PaperZDAnimInstance.h"
+#include "SensorComponent.h"
 #include "SpriteScaleComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AWarrior::AWarrior()
 {
@@ -26,6 +28,9 @@ AWarrior::AWarrior()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
+
+	SensorComponent = CreateDefaultSubobject<USensorComponent>(TEXT("Sensor Component"));
+	SensorComponent->SetupAttachment(GetSprite());
 
 	ComboComponent = CreateDefaultSubobject<UComboComponent>(TEXT("Combo Component"));
 
@@ -66,12 +71,19 @@ void AWarrior::Tick(float DeltaSeconds)
 
 	if (IsFalling() && WallSlideCheck())
 	{
-		WallSlide();
+		if (SensorComponent->WallBlockSightLine())
+		{
+			WallSlide();
+		}
+		else
+		{
+			LedgeGrab();
+		}
 	}
 	else
 	{
 		GetCharacterMovement()->GravityScale = DefaultGravityScale;
-		IsWallSliding = false;
+		IsOnTheWall = false;
 	}
 }
 
@@ -130,7 +142,7 @@ void AWarrior::Move(const float InputActionValue)
 		return;
 	}
 
-	if (IsAttacking || IsDashing || IsWallSliding) return;
+	if (IsAttacking || IsDashing || IsOnTheWall) return;
 	
 	AddMovementInput(FVector::ForwardVector, InputActionValue);
 
@@ -203,7 +215,7 @@ void AWarrior::StopSliding()
 
 void AWarrior::OnJumpInput()
 {
-	if (IsWallSliding)
+	if (IsOnTheWall)
 	{
 		WallJump();
 
@@ -252,13 +264,13 @@ void AWarrior::OnEnterLocomotion()
 
 void AWarrior::WallSlide()
 {
-	if (IsWallSliding) return;
+	if (IsOnTheWall) return;
 
-	IsWallSliding = true;
+	IsOnTheWall = true;
 	
-	JumpToAnimationNode(JumpToWallSlideNodeName);
-	GetCharacterMovement()->Velocity = FVector::ZeroVector;
+	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->GravityScale = WallSlideGravityScale;
+	JumpToAnimationNode(JumpToWallSlideNodeName);
 }
 
 void AWarrior::WallJump()
@@ -271,6 +283,24 @@ void AWarrior::WallJump()
 	LaunchCharacter(NewVelocity, true, true);
 
 	SetActorRotation((GetActorForwardVector() * -1.0).Rotation());
+}
+
+void AWarrior::LedgeGrab()
+{
+	if (IsOnTheWall) return;
+
+	IsOnTheWall = true;
+	GetCharacterMovement()->GravityScale = 0.0f;
+	GetCharacterMovement()->StopMovementImmediately();
+	JumpToAnimationNode(LedgeGrabNodeName);
+	SetActorLocation(SensorComponent->GetLedgeGrabLocation());
+	// UKismetSystemLibrary::MoveComponentTo(
+	// 	GetRootComponent(),
+	// 	SensorComponent->GetLedgeGrabLocation(),
+	// 	GetActorRotation(),
+	// 	false, false, 0.3f, false,
+	// 	EMoveComponentAction::Type::Move,
+	// 	FLatentActionInfo());
 }
 
 bool AWarrior::WallSlideCheck()
