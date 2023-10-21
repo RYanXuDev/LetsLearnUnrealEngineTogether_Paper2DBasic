@@ -340,3 +340,24 @@
 6. UCurveFloat的使用(类似Unity的AnimationCurve)
 7. 如何取得并使用曲线上的值(非常好的线性插值Alpha值来源)
 8. 实现角色的落地挤压(Land Squash)
+
+---
+
+【Ep.16】
+
+- 直播时间：2023年10月21日
+- YouTube: <https://youtube.com/live/t7_VRJChmjI>
+- Bilibili: <https://www.bilibili.com/video/BV1E94y1L76u>
+
+主要内容：
+
+1. Tick功能的改进：通过Boolean Flag实现只在需要的时候才Tick
+2. 如何取得浮点数曲线的范围值（其他曲线类型方法大同小异）
+3. 如何在C++代码中获取资产文件引用为曝露到编辑器里的变量赋值：ConstructorHelpers::FObjectFinder的使用
+4. 抓墙/抓边(LedgeGrab/EdgeGrab)功能的逻辑
+5. 如何判断可以抓墙
+6. 创建传感器组件(SensorComponent)：负责角色的所有检测功能
+7. 如何实现角色前方的视线检测(Sight Line Check);
+8. 如何取得墙角的位置
+9. MoveComponentTo的使用（蓝图节点与CPP++）
+10. 实现抓墙功能
