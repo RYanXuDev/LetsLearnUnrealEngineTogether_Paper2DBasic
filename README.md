@@ -279,7 +279,7 @@
 
 【Ep.13】
 
-- 直播时间：2023年10月17日
+- 直播时间：2023年10月18日
 - YouTube: <https://youtube.com/live/GFgtB6GtL1c>
 - Bilibili: <https://www.bilibili.com/video/BV1ww411X7rr>
 
@@ -301,3 +301,42 @@
 14. 什么是数据资产(Data Asset)：虚幻引擎的ScriptableObject
 15. 创建攻击数据类(AttackData)：角色攻击数据的容器
 16. 攻击数据的使用：让角色的每一段攻击都有自己独立的数据
+
+---
+
+【Ep.14】
+
+- 直播时间：2023年10月19日
+- YouTube: <https://youtube.com/live/fVCafT2fz_o>
+- Bilibili: <https://www.bilibili.com/video/BV1he411R747>
+
+主要内容：
+
+1. 霸体(SuperArmor)的判定
+2. 代码重构及参数微调
+3. 创建攻击组件(AttackComponent)：负责处理角色攻击相关逻辑
+4. 创建视觉特效组件(VisualEffectsComponent)：负责处理角色所有视觉特效
+5. 创建攻击效果枚举类(EAttackEffect)
+6. 当攻击命中时触发攻击效果
+7. 实现攻击命中时的击退效果(Knock Back)
+8. 虚幻引擎的时间线(Timeline)及浮点数曲线(CurveFloat)
+9. 实现角色跳跃拉伸
+
+---
+
+【Ep.15】
+
+- 直播时间：2023年10月20日
+- YouTube: <https://youtube.com/live/fMMc166NpEg>
+- Bilibili: <https://www.bilibili.com/video/BV1o84y1d7tp>
+
+主要内容：
+
+1. 实现攻击命中时的击飞/浮空效果(Knock Up)
+2. 滑墙动作改进：修正角色旋转
+3. 时间线组件(TimelineComponent)使用实验：已验证UE5.31版本无法使用 - 创建组件时编译无法通过
+4. FTimeline结构体的使用实验：已验证UE5.31版本无法使用 - 声明了这个结构体的组件Tick功能将会神奇的失效
+5. 创建精灵缩放组件(SpriteScaleComponent)：负责处理精灵缩放的所有逻辑，主要是跳跃时的拉伸以及落地时的挤压
+6. UCurveFloat的使用(类似Unity的AnimationCurve)
+7. 如何取得并使用曲线上的值(非常好的线性插值Alpha值来源)
+8. 实现角色的落地挤压(Land Squash)
