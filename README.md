@@ -361,3 +361,20 @@
 8. 如何取得墙角的位置
 9. MoveComponentTo的使用（蓝图节点与CPP++）
 10. 实现抓墙功能
+
+---
+
+【Ep.17】
+
+- 直播时间：2023年10月22日
+- YouTube: <https://youtube.com/live/TQgm9L7US7I>
+- Bilibili: <https://www.bilibili.com/video/BV1dB4y1R7w1>
+
+主要内容：
+
+1. 虚幻引擎C++里如何正确使用UKismetSystemLibrary::MoveComponentTo()函数
+2. 实现角色抓墙时按下键切换到滑墙状态
+3. 实现角色抓墙时按上键爬上平台
+4. 如何检测角色的前方是悬崖/平台边缘
+5. 如何获取爬下平台边缘并抓墙的位置
+6. 实现角色站在平台边缘时按下键切换到抓墙状态
