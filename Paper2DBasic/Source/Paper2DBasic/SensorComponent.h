@@ -21,7 +21,11 @@ public:
 
 	bool SightLineCheck(FHitResult& OutHitResult, float SightLineLength = 1000.0f, FName ActorTag = NAME_None, ECollisionChannel CheckChannel = ECC_Visibility) const;
 
+	bool AheadLedgeCheck() const;
+	
 	FVector GetLedgeGrabLocation() const;
+
+	FVector GetLedgeClimbingDownLocation() const;
 
 protected:
 	
@@ -46,6 +50,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Debug Settings", meta=(AllowPrivateAccess="true"))
 	bool DrawWallCornerLocation = true;
+
+	UPROPERTY(EditAnywhere, Category="Debug Settings", meta=(AllowPrivateAccess="true"))
+	bool DrawLedgeCheckRay = true;
+
+	UPROPERTY(EditAnywhere, Category="Debug Settings", meta=(AllowPrivateAccess="true"))
+	bool DrawLedgeClimbingDownLocation = true;
 
 	UPROPERTY(EditAnywhere, Category="Debug Settings", meta=(AllowPrivateAccess="true"))
 	float WallCornerCheckRadius = 10.0f;

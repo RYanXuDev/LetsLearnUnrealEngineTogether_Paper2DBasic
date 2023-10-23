@@ -110,7 +110,8 @@ private:
 	bool IsCharging;
 	bool IsDashing;
 	bool IsSliding;
-	bool IsOnTheWall;
+	bool IsWallSliding;
+	bool IsLedgeHanging;
 	bool HasMoveInput;
 	bool HasCrouchedInput;
 	bool RunAnimationTriggered;
@@ -172,15 +173,21 @@ private:
 	UFUNCTION(BlueprintCallable, Category=Actions)
 	void StopMoving();
 
-	virtual void Crouch(bool bClientSimulation = false) override;
-	virtual void UnCrouch(bool bClientSimulation = false) override;
-
 	void Slide();
 
 	void StopSliding();
 	
 	UFUNCTION(BlueprintCallable, Category=Actions)
 	void OnJumpInput();
+
+	UFUNCTION(BlueprintCallable, Category=Actions)
+	void OnUpInput();
+	
+	UFUNCTION(BlueprintCallable, Category=Actions)
+	void OnDownInputPressed();
+
+	UFUNCTION(BlueprintCallable, Category=Actions)
+	void OnDownInputReleased();
 
 	UFUNCTION(BlueprintCallable, Category=Actions)
 	void Dash();

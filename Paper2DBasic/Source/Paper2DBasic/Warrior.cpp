@@ -67,6 +67,8 @@ void AWarrior::Tick(float DeltaSeconds)
 	if (IsSliding)
 	{
 		AddMovementInput(GetActorForwardVector());
+
+		return;
 	}
 
 	if (IsFalling() && WallSlideCheck())
@@ -79,11 +81,20 @@ void AWarrior::Tick(float DeltaSeconds)
 		{
 			LedgeGrab();
 		}
+
+		return;
 	}
-	else
+
+	if ((IsWallSliding || IsLedgeHanging) && !WallSlideCheck())
 	{
+		IsWallSliding = false;
+		IsLedgeHanging = false;
 		GetCharacterMovement()->GravityScale = DefaultGravityScale;
-		IsOnTheWall = false;
+
+		if (IsFalling())
+		{
+			JumpToAnimationNode(JumpToFallNodeName);
+		}
 	}
 }
 
@@ -142,7 +153,7 @@ void AWarrior::Move(const float InputActionValue)
 		return;
 	}
 
-	if (IsAttacking || IsDashing || IsOnTheWall) return;
+	if (IsAttacking || IsDashing) return;
 	
 	AddMovementInput(FVector::ForwardVector, InputActionValue);
 
@@ -162,27 +173,6 @@ void AWarrior::StopMoving()
 	if (IsAttacking || !IsGrounded() || IsSliding || bIsCrouched) return;
 
 	JumpToAnimationNode(JumpToIdleNodeName);
-}
-
-void AWarrior::Crouch(bool bClientSimulation)
-{
-	HasCrouchedInput = true;
-
-	if (IsAttacking || IsSliding || !IsGrounded() || IsWallAbove()) return;
-	
-	Super::Crouch(bClientSimulation);
-	GetSprite()->SetRelativeLocation(CrouchedSpriteOffset);
-	JumpToAnimationNode(JumpToCrouchNodeName);
-}
-
-void AWarrior::UnCrouch(bool bClientSimulation)
-{
-	HasCrouchedInput = false;
-	
-	if (!bIsCrouched || IsSliding || IsAttacking || IsWallAbove()) return;
-	
-	Super::UnCrouch(bClientSimulation);
-	GetSprite()->SetRelativeLocation(DefaultSpriteOffset);
 }
 
 void AWarrior::Slide()
@@ -215,7 +205,7 @@ void AWarrior::StopSliding()
 
 void AWarrior::OnJumpInput()
 {
-	if (IsOnTheWall)
+	if (IsWallSliding || IsLedgeHanging)
 	{
 		WallJump();
 
@@ -232,6 +222,75 @@ void AWarrior::OnJumpInput()
 	}
 
 	Jump();
+}
+
+void AWarrior::OnUpInput()
+{
+	if (IsLedgeHanging)
+	{
+		const float LedgeClimbingOffsetX = GetCapsuleComponent()->GetScaledCapsuleRadius() * 1.5f * GetActorForwardVector().X;
+		const float LedgeClimbingOffsetZ = GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2.5f;
+		const FVector LedgeClimbingOffset = FVector(LedgeClimbingOffsetX, 0, LedgeClimbingOffsetZ);
+		const FVector LedgeClimbingLocation = GetActorLocation() + LedgeClimbingOffset;
+
+		FLatentActionInfo LatentActionInfo;
+		LatentActionInfo.CallbackTarget = this;
+		UKismetSystemLibrary::MoveComponentTo(
+			GetRootComponent(),
+			LedgeClimbingLocation,
+			GetActorRotation(),
+			true, true, 0.2f, false,
+			EMoveComponentAction::Type::Move,
+			LatentActionInfo);
+
+		JumpToAnimationNode(JumpToJumpUpNodeName);
+	}
+}
+
+void AWarrior::OnDownInputPressed()
+{
+	HasCrouchedInput = true;
+
+	if (SensorComponent->AheadLedgeCheck())
+	{
+		FLatentActionInfo LatentActionInfo;
+		LatentActionInfo.CallbackTarget = this;
+		UKismetSystemLibrary::MoveComponentTo(
+			GetRootComponent(),
+			SensorComponent->GetLedgeClimbingDownLocation(),
+			GetActorRotation(),
+			true, true, 0.05f, false,
+			EMoveComponentAction::Type::Move,
+			LatentActionInfo);
+		
+		SetActorRotation((GetActorForwardVector() * -1).Rotation());
+		JumpToAnimationNode(JumpToRunNodeName);
+
+		return;
+	}
+
+	if (IsLedgeHanging)
+	{
+		GetCharacterMovement()->GravityScale = DefaultGravityScale;
+
+		return;
+	}
+
+	if (IsAttacking || IsSliding || !IsGrounded() || IsWallAbove()) return;
+	
+	Crouch();
+	GetSprite()->SetRelativeLocation(CrouchedSpriteOffset);
+	JumpToAnimationNode(JumpToCrouchNodeName);
+}
+
+void AWarrior::OnDownInputReleased()
+{
+	HasCrouchedInput = false;
+	
+	if (!bIsCrouched || IsSliding || IsAttacking || IsWallAbove()) return;
+	
+	UnCrouch();
+	GetSprite()->SetRelativeLocation(DefaultSpriteOffset);
 }
 
 void AWarrior::Dash()
@@ -264,9 +323,10 @@ void AWarrior::OnEnterLocomotion()
 
 void AWarrior::WallSlide()
 {
-	if (IsOnTheWall) return;
+	if (IsWallSliding) return;
 
-	IsOnTheWall = true;
+	IsWallSliding = true;
+	IsLedgeHanging = false;
 	
 	GetCharacterMovement()->StopMovementImmediately();
 	GetCharacterMovement()->GravityScale = WallSlideGravityScale;
@@ -287,20 +347,22 @@ void AWarrior::WallJump()
 
 void AWarrior::LedgeGrab()
 {
-	if (IsOnTheWall) return;
+	if (IsLedgeHanging) return;
 
-	IsOnTheWall = true;
+	IsLedgeHanging = true;
 	GetCharacterMovement()->GravityScale = 0.0f;
 	GetCharacterMovement()->StopMovementImmediately();
 	JumpToAnimationNode(LedgeGrabNodeName);
-	SetActorLocation(SensorComponent->GetLedgeGrabLocation());
-	// UKismetSystemLibrary::MoveComponentTo(
-	// 	GetRootComponent(),
-	// 	SensorComponent->GetLedgeGrabLocation(),
-	// 	GetActorRotation(),
-	// 	false, false, 0.3f, false,
-	// 	EMoveComponentAction::Type::Move,
-	// 	FLatentActionInfo());
+	
+	FLatentActionInfo LatentActionInfo;
+	LatentActionInfo.CallbackTarget = this;
+	UKismetSystemLibrary::MoveComponentTo(
+		GetRootComponent(),
+		SensorComponent->GetLedgeGrabLocation(),
+		GetActorRotation(),
+		false, false, 0.1f, false,
+		EMoveComponentAction::Type::Move,
+		LatentActionInfo);
 }
 
 bool AWarrior::WallSlideCheck()
